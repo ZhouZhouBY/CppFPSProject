@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{13B5219A-4307-6183-5127-12B1FE5DEE43}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "CppFPS",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	]
+}
