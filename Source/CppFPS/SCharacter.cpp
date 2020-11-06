@@ -23,10 +23,15 @@ ASCharacter::ASCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("weapon"));
+	weapon->SetupAttachment(RootComponent);
+
 	SpringArmComp->bUsePawnControlRotation = true;
 
 	Score = 0;
 	fireLoc = FVector(0);
+	bulNum = 30;
+	PlayerName = TEXT("Zhou");
 	/*GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;*/
 }
 
@@ -62,8 +67,25 @@ void ASCharacter::NotNeedCrouch()
 void ASCharacter::Fire()
 {
 	FireServer();
-	FireMulticast();
 }
+
+void ASCharacter::DoFire()
+{
+	FTransform firingpoint = weapon->GetSocketTransform(TEXT("bullet"));
+	FRotator ForwardVec;
+	ForwardVec = CameraComp->GetComponentRotation();
+	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
+
+	UWorld* const World = GetWorld(); // get a reference to the world  
+	if (World)
+	{
+		// if world exists  
+		GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, ForwardVec.ToString());
+		ABullet* bul = World->SpawnActor<ABullet>(Bullet, firingpoint);
+	}
+	//GetWorld()->SpawnActor<ABullet>(Bullet, firingpoint, ForwardVec, SpawnParameters);
+}
+
 
 void ASCharacter::FireServer_Implementation()
 {
@@ -87,6 +109,11 @@ void ASCharacter::FireMulticast_Implementation()
 	AActor* MyOwner = GetOwner();
 	if (MyOwner)
 	{
+		if (bulNum <= 0) {
+			return;
+		}
+		--bulNum;
+		GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, FString::SanitizeFloat(bulNum));
 		StarLoc = CameraComp->GetComponentLocation();
 		ForwardVec = CameraComp->GetForwardVector();
 		EndLoc = StarLoc + ForwardVec * 3000;
@@ -132,7 +159,7 @@ void ASCharacter::FireMulticast_Implementation()
 			//DrawDebugBox(GetWorld(), OutHit.Location, FVector(10, 10, 10), FColor::Red, true, 1000.);
 
 
-			GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, FString::SanitizeFloat(Score));
+			//GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, FString::SanitizeFloat(Score));
 			DrawDebugLine(GetWorld(), weaponCustom->GetActorLocation(), OutHit.Location, FColor::Red, false, 1, 0, 10);
 			fireLoc = OutHit.Location;
 			return;
@@ -143,7 +170,7 @@ void ASCharacter::FireMulticast_Implementation()
 			fireLoc = FVector(0);
 			return;
 		}
-
+		
 	}
 }
 
@@ -159,11 +186,11 @@ void ASCharacter::Tick(float DeltaTime)
 
 }
 
-void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)
+/* void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ASCharacter, Score);
-}
+} */
 
 // Called to bind functionality to input
 void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
 #include "Weapon.h"
+#include "Bullet.h"
 #include "SCharacter.generated.h"
 
 
@@ -40,6 +41,9 @@ protected:
 	FVector fireLoc;
 	//武器
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Target")
+	class UStaticMeshComponent* weapon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	AWeapon* weaponCustom = nullptr;
 
@@ -51,15 +55,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Fire();
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void DoFire();
+
 	UFUNCTION(Server, Reliable, WithValidation)
 	void FireServer();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void FireMulticast();
-
-	//当前得分
-	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Score")
-	float Score;
 	
 	UFUNCTION()
 	void OnRep_Score();
@@ -68,13 +71,28 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Score")
 	float MaxScore;
 
+	//物理子弹
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ABullet> Bullet;
 	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps);
+	// void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps);
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// 子弹数
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Bullet")
+	float bulNum;
+
+	// 当前得分
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Score")
+	float Score;
+
+	// 角色名
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Name")
+	FString PlayerName;
 };
