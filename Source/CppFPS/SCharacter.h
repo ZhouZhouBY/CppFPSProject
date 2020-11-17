@@ -39,12 +39,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	FVector fireLoc;
+
 	//武器
-
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Target")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
 	class UStaticMeshComponent* weapon;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	AWeapon* weaponCustom = nullptr;
 
 	//蹲下
@@ -74,6 +74,16 @@ protected:
 	//物理子弹
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABullet> Bullet;
+
+	/** 最大移动速度 */
+	UPROPERTY(EditDefaultsOnly, Category = "Speed")
+	float MaxSpeed;
+
+	//跑
+	UFUNCTION(BlueprintCallable, Category = "Run")
+	void Run();
+	UFUNCTION(BlueprintCallable, Category = "Run")
+	void UnRun();
 	
 public:	
 	// Called every frame

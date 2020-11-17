@@ -24,7 +24,6 @@ ASCharacter::ASCharacter()
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("weapon"));
-	weapon->SetupAttachment(RootComponent);
 
 	SpringArmComp->bUsePawnControlRotation = true;
 
@@ -83,7 +82,7 @@ void ASCharacter::DoFire()
 		GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, ForwardVec.ToString());
 		ABullet* bul = World->SpawnActor<ABullet>(Bullet, firingpoint);
 	}
-	//GetWorld()->SpawnActor<ABullet>(Bullet, firingpoint, ForwardVec, SpawnParameters);
+	// GetWorld()->SpawnActor<ABullet>(Bullet, firingpoint, ForwardVec);
 }
 
 
@@ -99,7 +98,7 @@ bool ASCharacter::FireServer_Validate()
 
 void ASCharacter::FireMulticast_Implementation()
 {
-	if (!weaponCustom) return;
+	// if (!weaponCustom) return;
 
 	FHitResult OutHit;
 	FVector StarLoc, EndLoc;
@@ -160,13 +159,13 @@ void ASCharacter::FireMulticast_Implementation()
 
 
 			//GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, FString::SanitizeFloat(Score));
-			DrawDebugLine(GetWorld(), weaponCustom->GetActorLocation(), OutHit.Location, FColor::Red, false, 1, 0, 10);
+			DrawDebugLine(GetWorld(), weapon->GetSocketLocation("Weapon"), OutHit.Location, FColor::Red, false, 0.1f, 0, 2);
 			fireLoc = OutHit.Location;
 			return;
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), weaponCustom->GetActorLocation(), EndLoc, FColor::Red, false, 1, 0, 10);
+			DrawDebugLine(GetWorld(), weapon->GetSocketLocation("Weapon"), EndLoc, FColor::Red, false, 0.1f, 0, 2);
 			fireLoc = FVector(0);
 			return;
 		}
@@ -177,6 +176,16 @@ void ASCharacter::FireMulticast_Implementation()
 void ASCharacter::OnRep_Score()
 {
 	return;
+}
+
+void ASCharacter::Run()
+{
+
+}
+
+void ASCharacter::UnRun()
+{
+	
 }
 
 // Called every frame
@@ -211,5 +220,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASCharacter::NotNeedCrouch);
 	//射击
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::Fire);
+	//跑
+	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASCharacter::Run);
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &ASCharacter::UnRun);
 }
 
