@@ -16,14 +16,21 @@ ASCharacter::ASCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Speed = 2.0;
-	//创建弹簧臂
+	// 创建骨骼体
+	MyMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MyMesh"));
+	MyMesh->SetupAttachment(RootComponent);
+
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(RootComponent);
 	// 创建相机
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
+	// 创建武器
+	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	Sword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sword"));
+	Rocket = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket"));
 
-	weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("weapon"));
+	
 
 	SpringArmComp->bUsePawnControlRotation = true;
 
@@ -31,6 +38,7 @@ ASCharacter::ASCharacter()
 	fireLoc = FVector(0);
 	bulNum = 30;
 	PlayerName = TEXT("Zhou");
+	
 	/*GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;*/
 }
 
@@ -70,7 +78,23 @@ void ASCharacter::Fire()
 
 void ASCharacter::DoFire()
 {
-	FTransform firingpoint = weapon->GetSocketTransform(TEXT("bullet"));
+	if (IsRocket) { // 发射炮弹
+		GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, TEXT("Rocket"));
+	}
+	else {
+		if (HasWeaponInHand) { // 空手拳头攻击
+			
+		}
+		else {
+			if (IsSword) { // 剑
+				
+			}
+			else { // 枪
+				
+			}
+		}
+	}
+	FTransform firingpoint = Weapon->GetSocketTransform(TEXT("bullet"));
 	FRotator ForwardVec;
 	ForwardVec = CameraComp->GetComponentRotation();
 	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
@@ -129,7 +153,7 @@ void ASCharacter::FireMulticast_Implementation()
 			GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, ToString));*/
 
 			FName name = OutHit.Actor->GetFName();
-			//GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, name.ToString());
+			GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, name.ToString());
 
 
 			FVector hitLoc = OutHit.Location;
@@ -154,23 +178,51 @@ void ASCharacter::FireMulticast_Implementation()
 					Score += 1;
 				}
 			}
-
 			//DrawDebugBox(GetWorld(), OutHit.Location, FVector(10, 10, 10), FColor::Red, true, 1000.);
 
 
 			//GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, FString::SanitizeFloat(Score));
-			DrawDebugLine(GetWorld(), weapon->GetSocketLocation("Weapon"), OutHit.Location, FColor::Red, false, 0.1f, 0, 2);
+			DrawDebugLine(GetWorld(), Weapon->GetSocketLocation("Weapon"), OutHit.Location, FColor::Red, false, 0.1f, 0, 2);
 			fireLoc = OutHit.Location;
 			return;
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), weapon->GetSocketLocation("Weapon"), EndLoc, FColor::Red, false, 0.1f, 0, 2);
+			DrawDebugLine(GetWorld(), Weapon->GetSocketLocation("Weapon"), EndLoc, FColor::Red, false, 0.1f, 0, 2);
 			fireLoc = FVector(0);
 			return;
 		}
 		
 	}
+}
+
+
+void ASCharacter::TakeOutWeapon()
+{
+	CanAttack = false;
+	Weapon->AttachToComponent(MyMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("Weapon"));
+	IsSword = false;
+	HasWeaponInHand = true;
+	CanAttack = true;
+}
+
+void ASCharacter::TakeOutSword()
+{
+	CanAttack = false;
+	Sword->AttachToComponent(MyMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("Sword"));
+	IsSword = true;
+	HasWeaponInHand = true;
+	CanAttack = true;
+}
+
+
+void ASCharacter::ReturnWeapon()
+{
+	CanAttack = false;
+	HasWeaponInHand = false;
+	Sword->AttachToComponent(MyMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("SwordLoc"));
+	Weapon->AttachToComponent(MyMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("WeaponLoc"));
+	CanAttack = true;
 }
 
 void ASCharacter::OnRep_Score()

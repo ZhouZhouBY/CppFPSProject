@@ -36,16 +36,24 @@ protected:
 	//相机
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	class UCameraComponent* CameraComp;
+	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	FVector fireLoc;
 
 	//武器
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
-	class UStaticMeshComponent* weapon;
+	class UStaticMeshComponent* Weapon;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	AWeapon* weaponCustom = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sword")
+	class UStaticMeshComponent* Sword;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sword")
+	class UStaticMeshComponent* Rocket;
+
+	// mesh
+	UPROPERTY(Category = "Character", VisibleAnywhere, BlueprintReadOnly)
+	class USkeletalMeshComponent* MyMesh;
 
 	//蹲下
 	void NeedCrouch();
@@ -63,13 +71,34 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void FireMulticast();
+
+	// 拔枪
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void TakeOutWeapon();
+	// 拔剑
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void TakeOutSword();
 	
+
+	// 放回武器
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void ReturnWeapon();
+
 	UFUNCTION()
 	void OnRep_Score();
 
 	/** 最大得分 */
 	UPROPERTY(EditDefaultsOnly, Category = "Score")
 	float MaxScore;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Init")
+	bool CanAttack;
+	UPROPERTY(BlueprintReadWrite, Category = "Init")
+	bool IsSword;
+	UPROPERTY(BlueprintReadWrite, Category = "Init")
+	bool IsRocket;
+	UPROPERTY(BlueprintReadWrite, Category = "Init")
+	bool HasWeaponInHand;
 
 	//物理子弹
 	UPROPERTY(EditAnywhere)
@@ -84,6 +113,9 @@ protected:
 	void Run();
 	UFUNCTION(BlueprintCallable, Category = "Run")
 	void UnRun();
+
+	UPROPERTY(EditAnywhere)
+	AActor* FireActor;
 	
 public:	
 	// Called every frame
@@ -96,7 +128,7 @@ public:
 
 	// 子弹数
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Bullet")
-	float bulNum;
+	int bulNum;
 
 	// 当前得分
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Score")
