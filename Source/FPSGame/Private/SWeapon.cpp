@@ -49,7 +49,9 @@ void ASWeapon::Fire()
 	
 	if (MyOwner)
 	{
-		//ASCharacter* MyPawn = Cast<ASCharacter>(MyOwner);
+		ASCharacter* MyPawn = Cast<ASCharacter>(MyOwner);
+		
+
 		FVector EyeLocation;
 		FRotator EyeRotation;
 
@@ -57,15 +59,18 @@ void ASWeapon::Fire()
 		FVector ForwardVec;
 		FVector EndLocation;
 
-		StartLocation = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
-		ForwardVec = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetActorForwardVector();
+		// StartLocation = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
+		// ForwardVec = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetActorForwardVector();
+
+		StartLocation = MyPawn->GetCameraCompLocation();
+		ForwardVec = MyPawn->GetCameraCompForwardVec();
 		EndLocation = StartLocation + ForwardVec * 10000;
 
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
 		FVector ShotDirection = EyeRotation.Vector();
 
-		FVector TraceEnd = StartLocation + (ShotDirection * 10000);
+		FVector TraceEnd = StartLocation + (ForwardVec * 10000);
 		// Particle "Target" Parameter
 		FVector TraceEndPoint = TraceEnd;
 
@@ -85,18 +90,21 @@ void ASWeapon::Fire()
 		EPhysicalSurface SurfaceType = SurfaceType_Default;
 
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
+		if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
 			// Blocking hit! Process damage
 			AActor* HitActor = Hit.GetActor();
-			FName name = HitActor->GetFName();
-			// GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, name.ToString());
-			
-			// 打靶加分
-			
-			if (name == "BP_Target_2") {
-				//MyPawn->score++;
+			if (HitActor) {
+				FName name = HitActor->GetFName();
+				// GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, name.ToString());
+
+				// 打靶加分
+
+				if (name == "BP_Target_2") {
+					MyPawn->score++;
+				}
 			}
+			
 
 			//GEngine->AddOnScreenDebugMessage(0, 30.f, FColor::Red, FString::SanitizeFloat(MyPawn->score));
 

@@ -107,6 +107,21 @@ void ASCharacter::StopFire()
 	}
 }
 
+bool ASCharacter::IsZoom()
+{
+	return bWantsToZoom;
+}
+
+FVector ASCharacter::GetCameraCompLocation()
+{
+	return CameraComp->GetComponentLocation();
+}
+
+FVector ASCharacter::GetCameraCompForwardVec()
+{
+	return CameraComp->GetForwardVector();
+}
+
 void ASCharacter::OnHealthChanged(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Health <= 0.0f && !bDied)
@@ -115,7 +130,7 @@ void ASCharacter::OnHealthChanged(USHealthComponent* OwningHealthComp, float Hea
 			
 		GetMovementComponent()->StopMovementImmediately();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+		
 		// DetachFromControllerPendingDestroy();
 
 		SetLifeSpan(6.0f);

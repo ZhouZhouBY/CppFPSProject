@@ -48,15 +48,16 @@ protected:
 	/* Default FOV set during begin play */
 	float DefaultFOV;
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
 	void BeginZoom();
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
 	void EndZoom();
 
 	UPROPERTY(Replicated)
 	ASWeapon* CurrentWeapon;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
-	TSubclassOf<ASWeapon> StarterWeaponClass;
+	
 
 	UPROPERTY(BlueprintReadWrite, Category = "Player")
 	FName WeaponAttachSocketName;
@@ -84,6 +85,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFire();
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	bool IsZoom();
+
 	float score;
+
+	UFUNCTION()
+	FVector GetCameraCompLocation();
+
+	UFUNCTION()
+	FVector GetCameraCompForwardVec();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player")
+	TSubclassOf<ASWeapon> StarterWeaponClass;
 
 };
